@@ -2,7 +2,15 @@ const mongoose = require("mongoose");
 const express = require("express");
 const app = express();
 const cors = require("cors")
-const port = 3000;
+const port = 5050;
+
+app.use(express.json())
+
+app.use(cors())
+
+const employeroute = require("./router/userrouter")
+
+app.use("/employee",employeroute);
 
 const employeeRoute = require("./router/userrouter")
 
@@ -16,9 +24,7 @@ mongoose.connect(mongourl)
     console.log(" Mongodb is not connected " , error)
 })
 
-app.use(express.json())
 
-app.use(cors())
 
 app.listen(port,()=>{
     console.log(`👩‍💻 Server is running on ${port}`)
