@@ -12,7 +12,7 @@ const employeroute = require("./router/userrouter")
 
 app.use("/employee",employeroute);
 
-const employeeRoute = require("./router/userrouter")
+
 
 const mongourl = "mongodb://localhost:27017/class";
 

@@ -1,4 +1,7 @@
 const employedata = require("./../model/userModel")
+const bcrypt = require("bcrypt")
+const JWT = require("jsonwebtoken")
+const secretkey = " jshudifhiwufhawelhwia"
 
 exports.employeSignup = async(req,res)=>{
      try {
@@ -22,7 +25,7 @@ exports.employeSignup = async(req,res)=>{
 
 exports.getalluser = async(req,res)=>{
           try {
-
+          console.log( req.usertokennn," userlogin auth")
            const allresult = await employedata.find()
          return res.status(200).send({message:" This is your all users",allresult})
           } catch (error) {
@@ -70,15 +73,72 @@ exports.updateuser = async(req,res)=>{
 exports.userLogin = async(req,res)=>{
   try {
      const { email , password} = req.body
-      const alreadyEmail = await User.findOne({email})
-
+     console.log(req.body,"///")
+      const alreadyEmail = await employedata.findOne({email})
+      console.log(alreadyEmail,"????")
     if(!alreadyEmail){
         return res.status(400).json({message:"User is not created , please signup "})
     }
+        // const dbpassword = alreadyEmail.id
 
-     return res.status(200).json({ message:" User login sucessfully"})
+        const token = JWT.sign({email:alreadyEmail.email},secretkey,{expiresIn:"1h"})
 
-  } catch (error) {
+
+     return res.status(200).json({ message:" User login sucessfully",token})
+
+  } catch (error) { 
     return res.status(404).json({message:" User not login try again",error})
   }
 }
+
+exports.resetUser = async(req,res)=>{
+  try {
+    const {email,newpassword,oldpassword} = req.body
+    const alreadyEmail = await employedata.findOne({email})
+    console.log(alreadyEmail)
+
+    if(!alreadyEmail){
+       return res
+          .status(400)
+          .json({ message: "User is not created , please signup " });    
+    }
+    const DBpassword = alreadyEmail.password
+    const id = alreadyEmail.id
+
+    const data = {password:newpassword}
+
+    if(oldpassword === DBpassword){
+        const results = await employedata.findOneAndUpdate(id, data, { new: true });
+        return res.status(200).send(results)}
+          console.log(results);
+          
+    
+  } catch (error) {
+    return res.status(404).json({message:error.message})
+  }
+}
+
+  exports.forgetPassword = async(req,res)=>{
+    try {
+       const { email , newPassword } = req.body;
+
+    const alreadyEmail = await User.findOne({ email });
+    console.log(alreadyEmail);
+
+    if (!alreadyEmail) {
+      return res
+        .status(400)
+        .json({ message: "User is not created , please signup " });
+    }
+
+    const id = alreadyEmail.id;
+
+    const data = { password: newPassword };
+    const result = await User.findOneAndUpdate(id, data, { new: true });
+    return res.status(200).send(result);
+
+    } catch (error) {
+       return res.status(404).json({message:" Your password is not reset"})
+    }
+  }
+
