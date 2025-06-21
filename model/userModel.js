@@ -24,6 +24,6 @@ const employeSchema = new mongoose.Schema({
     required: true
   },
 
-},{timestamp:true,versionKey:false})
+},{timestamps:true,versionKey:false})
 
 module.exports = mongoose.model("employedata",employeSchema)

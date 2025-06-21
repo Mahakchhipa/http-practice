@@ -1,14 +1,22 @@
 const employedata = require("./../model/userModel")
 const bcrypt = require("bcrypt")
 const JWT = require("jsonwebtoken")
-const secretkey = " jshudifhiwufhawelhwia"
+const secretkey = process.env.SECRECT_KEY
 
 exports.employeSignup = async(req,res)=>{
      try {
-      // const {email,password,name,number}= req.body
+      const {email,password,name,phonenumber}= req.body
+        const alreadyEmail = await employedata.findOne({email})
 
-        const data = req.body;
-        console.log(data,"KKKKKK");
+         if(alreadyEmail){
+            return res.status(400).send("user already created")
+        }
+
+        const salt = bcrypt.genSaltSync(10)
+        const hash = bcrypt.hashSync(password,salt)
+
+        const data = {name,email,phonenumber,password:hash}
+        console.log(data);
 
         const newUser = new employedata(data);
         await newUser.save();
@@ -37,6 +45,7 @@ exports.getsingleuser = async(req,res)=>{
   try {
 
     const {id}= req.params
+     // const email = req.query.email
     const result = await employedata.findById(id)
     // console.log(result)
     return res.status(202).send({message:" single user is finded " , result})
@@ -76,12 +85,19 @@ exports.userLogin = async(req,res)=>{
      console.log(req.body,"///")
       const alreadyEmail = await employedata.findOne({email})
       console.log(alreadyEmail,"????")
+
     if(!alreadyEmail){
         return res.status(400).json({message:"User is not created , please signup "})
     }
-        // const dbpassword = alreadyEmail.id
+        const dbpassword = alreadyEmail._id
+        
+    const match = bcrypt.compare(password,dbpassword)
+    console.log(match, "mathch ")
+       if(!match){
+        return res.status(400).send("incorrect password / password not match")
+    }
 
-        const token = JWT.sign({email:alreadyEmail.email},secretkey,{expiresIn:"1h"})
+    const token = JWT.sign({email:alreadyEmail.email},secretkey,{expiresIn:"1h"})
 
 
      return res.status(200).json({ message:" User login sucessfully",token})
@@ -93,52 +109,79 @@ exports.userLogin = async(req,res)=>{
 
 exports.resetUser = async(req,res)=>{
   try {
-    const {email,newpassword,oldpassword} = req.body
-    const alreadyEmail = await employedata.findOne({email})
-    console.log(alreadyEmail)
+      const {email,oldpassword,newPassword} = req.body
+        const alreadyEmail = await employedata.findOne({email})
 
-    if(!alreadyEmail){
-       return res
-          .status(400)
-          .json({ message: "User is not created , please signup " });    
-    }
+        if(!alreadyEmail){
+          return res.status(404).send({message:" invaild user "})
+        }
+
     const DBpassword = alreadyEmail.password
-    const id = alreadyEmail.id
+    const id = alreadyEmail._id
 
-    const data = {password:newpassword}
+    const matchpassword = await bcrypt.compare(oldpassword,DBpassword)
 
-    if(oldpassword === DBpassword){
-        const results = await employedata.findOneAndUpdate(id, data, { new: true });
-        return res.status(200).send(results)}
-          console.log(results);
-          
-    
-  } catch (error) {
+    if(!matchpassword){
+      return res.status(404).json({message:" Password not match with old password!"})
+    }
+    else{
+      const salt = bcrypt.genSaltSync(10);
+              const hash = bcrypt.hashSync(newPassword, salt);
+             const data = { newPassword: hash };
+
+    const passwordresult = await employedata.findByIdAndUpdate(id, data, { new: true });
+
+    return res.status(202).send({
+      message: "Your Password has been successfully updated! 🎉",
+      result: passwordresult})
+     
+  } 
+}
+catch (error) {
     return res.status(404).json({message:error.message})
   }
 }
 
   exports.forgetPassword = async(req,res)=>{
     try {
-       const { email , newPassword } = req.body;
+         const { email,newpassword} = req.body
+           const alreadyEmail = await employedata.findOne({email})
 
-    const alreadyEmail = await User.findOne({ email });
-    console.log(alreadyEmail);
+        if(!alreadyEmail){
+          return res.status(404).send({message:" invaild user "})
+        }
 
-    if (!alreadyEmail) {
-      return res
-        .status(400)
-        .json({ message: "User is not created , please signup " });
-    }
-
-    const id = alreadyEmail.id;
-
-    const data = { password: newPassword };
-    const result = await User.findOneAndUpdate(id, data, { new: true });
-    return res.status(200).send(result);
+        
 
     } catch (error) {
-       return res.status(404).json({message:" Your password is not reset"})
+      return res.status(404).json({message:" Your password is not reset "})
     }
+
+  
   }
 
+
+
+  //   try {
+  //      const { email , newPassword } = req.body;
+
+  //   const alreadyEmail = await User.findOne({ email });
+  //   console.log(alreadyEmail);
+
+  //   if (!alreadyEmail) {
+  //     return res
+  //       .status(400).json({ message: "User is not created , please signup " });
+  //   }
+  //   else{
+  //     const id = alreadyEmail._id;
+  //  const salt = bcrypt.genSaltSync(10);
+  //  const hash = bcrypt.hashSync(newPassword, salt);
+  //   const data = { password:hash };
+  //   const result = await employedata.findByIdAndUpdate(id, data, { new: true });
+  //   return res.status(200).send(result);
+
+  //   }
+    
+  //   } catch (error) {
+  //      return res.status(404).json({message:" Your password is not reset try again"})
+  //   }

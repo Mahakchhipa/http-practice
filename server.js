@@ -2,7 +2,8 @@ const mongoose = require("mongoose");
 const express = require("express");
 const app = express();
 const cors = require("cors")
-const port = 5050;
+require('dotenv').config()
+const port = process.env.PORT
 
 app.use(express.json())
 
@@ -12,9 +13,7 @@ const employeroute = require("./router/userrouter")
 
 app.use("/employee",employeroute);
 
-
-
-const mongourl = "mongodb://localhost:27017/class";
+const mongourl = process.env.MONGO_URL
 
 mongoose.connect(mongourl)
 .then(()=>{
@@ -23,8 +22,6 @@ mongoose.connect(mongourl)
 .catch( (error)=>{
     console.log(" Mongodb is not connected " , error)
 })
-
-
 
 app.listen(port,()=>{
     console.log(`👩‍💻 Server is running on ${port}`)
