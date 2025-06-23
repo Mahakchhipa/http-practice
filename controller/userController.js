@@ -1,6 +1,7 @@
 const employedata = require("./../model/userModel")
 const bcrypt = require("bcrypt")
 const JWT = require("jsonwebtoken")
+const moment = require("moment")
 const secretkey = process.env.SECRECT_KEY
 
 exports.employeSignup = async(req,res)=>{
@@ -151,7 +152,14 @@ catch (error) {
           return res.status(404).send({message:" invaild user "})
         }
 
+        const id = alreadyEmail._id
         
+        const salt = bcrypt.genSaltSync(10)
+        const hash = bcrypt.hashSync(newpassword,salt)
+
+        const data = {newpassword:hash}
+       const result = await employedata.findByIdAndUpdate(id, data, { new: true });
+    return res.status(200).send(result);
 
     } catch (error) {
       return res.status(404).json({message:" Your password is not reset "})
@@ -185,3 +193,20 @@ catch (error) {
   //   } catch (error) {
   //      return res.status(404).json({message:" Your password is not reset try again"})
   //   }
+
+  exports.Dobcounter = async(req,res)=>{
+     
+    const { dob} = req.body ;
+    const birth = moment(dob,"DD-MM-YYYY");
+    const myage = moment()
+     const ageyear = myage.diff(birth,"years")
+     birth.add(ageyear,"year")
+     const agemonth =myage.diff(birth,"month")
+     birth.add(agemonth,"month")
+    
+     const ageday = myage.diff(birth,"day")
+     birth.add(ageday,"day")
+     const ageee = ({ age:{ageyear,agemonth,ageday}})
+     return res.status(202).send(ageee)
+
+  }

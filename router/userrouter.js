@@ -12,5 +12,6 @@ router.patch("/updateuserdata/:id",usermodel.updateuser)
 router.post("/loginuser",usermodel.userLogin)
 router.put("/resetuser",usermodel.resetUser)
 router.patch("/forgetpassword",usermodel.forgetPassword)
+router.get("/dobcounter",usermodel.Dobcounter)
 
 module.exports = router
