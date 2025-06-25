@@ -19,10 +19,13 @@ if(!bearerToken){
  if(!decode){
     return res.status(400).send({ message:" No token provided "})
  }
-console.log(decode.email,"decode");
+
 const email = decode.email
+console.log(decode.email,"decode");
 
 const userDetails = await usermodel.findOne({email})
+
+console.log(" User is vaild with token ",userDetails)
 
 if(!userDetails){
     return res.status(400).send({ message:" User not found "})
