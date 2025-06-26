@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
 const express = require("express");
-const app = express();
+const nodeMailer = require("nodemailer")
 const cors = require("cors")
 require('dotenv').config()
 const port = process.env.PORT
-
+const app = express();
 app.use(express.json())
 
 app.use(cors())
@@ -12,6 +12,10 @@ app.use(cors())
 const employeroute = require("./router/userrouter")
 
 app.use("/employee",employeroute);
+
+const productRoute = require("./router/productRouter")
+
+app.use("/product", productRoute)
 
 const mongourl = process.env.MONGO_URL
 

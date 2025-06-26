@@ -30,7 +30,7 @@ console.log(" User is vaild with token ",userDetails)
 if(!userDetails){
     return res.status(400).send({ message:" User not found "})
 }
- req.usertokennn = userDetails
+ req.userDetails = userDetails
 
  next()
 }

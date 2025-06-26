@@ -33,9 +33,10 @@ exports.employeSignup = async(req,res)=>{
 }
 
 exports.getalluser = async(req,res)=>{
+   console.log(" token ke sath user details ----",req.userDetails)
           try {
           console.log( req.usertokennn," userlogin auth")
-           const allresult = await employedata.find()
+           const allresult = await employedata.findOne({ req:req.userDetails.email})
          return res.status(200).send({message:" This is your all users",allresult})
           } catch (error) {
           return  res.status(404).send({message:error})
