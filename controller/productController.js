@@ -1,9 +1,27 @@
 const product = require("../model/product")
 const userModel = require("../model/userModel")
-// const JWT = require("jsonwebtoken")
-// const bcrypt = require("bcrypt")
+const img = require("../helper")
+
 
 exports.addProduct = async(req,res)=>{
+ 
+  const {name, price,user_id} = req.body
+
+   console.log(" This is user login requst body",req.body)
+  console.log(" this is user file upload body data",req.files.img.data)
+
+   const uploadImageResult = await img.uploadImage(req.files)
+  console.log(" our file image upload data ",uploadImageResult[0].url)
+
+ const data = {
+    name ,
+    price,
+    user_id,
+    photo: uploadImageResult[0].url
+  }
+   const abc = new product(data)
+   
+
 try {
     
 console.log(req.body)
@@ -11,7 +29,7 @@ console.log(req.body)
 const abc = new product(req.body)
 await abc.save()
 console.log(abc)
-return res.status(200).json({message:" Your Product has been sucesssfully adeed!!!!!!"})
+return res.status(200).json({message:" Your Product has been sucesssfully adeed!!!!!!",data})
 
 } catch (error) {
      return res.status(404).json({Message:" Product not add "})

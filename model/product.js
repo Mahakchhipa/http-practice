@@ -15,6 +15,10 @@ const productSchema = new mongoose.Schema({
         require:true,
         ref:"employedata"
     },
+    photo:{
+        type:String,
+        require:true
+    }
 },{
         timestamps:true,versionKey:false
     })
